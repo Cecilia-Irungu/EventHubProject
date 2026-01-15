@@ -1,29 +1,48 @@
-import DashboardLayout from "@/components/layout/DashboardLayout";
+// src/pages/dashboard/DashboardOverview.jsx
 
-export default function DashboardOverview() {
+const DashboardOverview = () => {
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Page Header */}
-        <header>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-gray-600">
-            Manage your events and track performance
-          </p>
-        </header>
-
-        {/* Stats Section */}
-        <section>
-          <h2 className="text-lg font-semibold mb-2">Overview</h2>
-          {/* Stats cards will go here */}
-        </section>
-
-        {/* Quick Actions */}
-        <section>
-          <h2 className="text-lg font-semibold mb-2">Quick Actions</h2>
-          {/* Action buttons will go here */}
-        </section>
+    <div className="p-6 space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <p className="text-gray-600">
+          Welcome back! Here’s an overview of your events.
+        </p>
       </div>
-    </DashboardLayout>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded shadow">
+          <p className="text-sm text-gray-500">Total Events</p>
+          <h2 className="text-xl font-semibold">0</h2>
+        </div>
+
+        <div className="bg-white p-4 rounded shadow">
+          <p className="text-sm text-gray-500">Tickets Sold</p>
+          <h2 className="text-xl font-semibold">0</h2>
+        </div>
+
+        <div className="bg-white p-4 rounded shadow">
+          <p className="text-sm text-gray-500">Upcoming Events</p>
+          <h2 className="text-xl font-semibold">0</h2>
+        </div>
+
+        <div className="bg-white p-4 rounded shadow">
+          <p className="text-sm text-gray-500">Revenue</p>
+          <h2 className="text-xl font-semibold">KES 0</h2>
+        </div>
+      </div>
+
+      {/* Upcoming Events */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Upcoming Events</h2>
+        <div className="bg-white p-4 rounded shadow text-gray-500">
+          No upcoming events yet.
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default DashboardOverview;
