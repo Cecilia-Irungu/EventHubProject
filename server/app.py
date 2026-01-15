@@ -157,3 +157,36 @@ def delete_feedback(id):
     db.session.commit()
 
     return {}, 204
+
+
+# USER ROUTES
+
+# GET /users – get all users
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    return [u.to_dict() for u in users], 200
+
+
+# GET /users/<int:id> – get a single user
+@app.route('/users/<int:id>', methods=['GET'])
+def get_user(id):
+    user = User.query.get(id)
+    if not user:
+        abort(404, description="User not found")
+    return user.to_dict(), 200
+
+# POST /users – create a new user
+
+
+@app.route('/users', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    try:
+        user = User(username=data['username'], email=data['email'])
+        db.session.add(user)
+        db.session.commit()
+        return user.to_dict(), 201
+    except Exception as e:
+        db.session.rollback()
+        abort(400, description=str(e))
