@@ -99,3 +99,61 @@ def delete_event(id):
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
+
+
+# FEEDBACK ROUTES
+
+
+# GET /feedback – get all feedback
+@app.route('/feedback', methods=['GET'])
+def get_all_feedback():
+    feedback = Feedback.query.all()
+    return [f.to_dict() for f in feedback], 200
+
+
+# GET /events/<int:event_id>/feedback – feedback for one event
+@app.route('/events/<int:event_id>/feedback', methods=['GET'])
+def get_event_feedback(event_id):
+    event = Event.query.get(event_id)
+
+    if not event:
+        abort(404, description="Event not found")
+
+    return [f.to_dict() for f in event.feedback], 200
+
+
+# POST /feedback – create feedback
+@app.route('/feedback', methods=['POST'])
+def create_feedback():
+    data = request.get_json()
+
+    try:
+        feedback = Feedback(
+            rating=data['rating'],
+            comment=data['comment'],
+            user_id=data['user_id'],
+            event_id=data['event_id']
+        )
+
+        db.session.add(feedback)
+        db.session.commit()
+
+        return feedback.to_dict(), 201
+
+    except Exception as e:
+        db.session.rollback()
+        abort(400, description=str(e))
+
+
+# DELETE /feedback/<int:id>
+@app.route('/feedback/<int:id>', methods=['DELETE'])
+def delete_feedback(id):
+    feedback = Feedback.query.get(id)
+
+    if not feedback:
+        abort(404, description="Feedback not found")
+
+    db.session.delete(feedback)
+    db.session.commit()
+
+    return {}, 204
