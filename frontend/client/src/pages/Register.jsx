@@ -1,53 +1,35 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './Register.css';   
+import { useState } from "react";
+import API from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    try {
+      await API.post("/users", { username, email, password });
+      alert("Registered successfully!");
+      navigate("/login");
+    } catch (err) {
+      alert("Registration failed");
+    }
+  };
+
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1>Create Your Account</h1>
-          <p>Join the best events happening in Nairobi</p>
-        </div>
-
-        <form className="auth-form">
-          <div className="form-field">
-            <label htmlFor="name">Full Name</label>
-            <input type="text" id="name" placeholder="John Doe" required />
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="email">Email address</label>
-            <input type="email" id="email" placeholder="your@email.com" required />
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="password">Password</label>
-            <input type="password" id="password" placeholder="••••••••••••" required />
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input type="password" id="confirmPassword" placeholder="••••••••••••" required />
-          </div>
-
-          <button type="submit" className="btn-login">
-            Create Account
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <p>
-            Already have an account?{' '}
-            <Link to="/login" className="switch-link">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-96">
+        <h2 className="text-2xl mb-4 font-bold">Register</h2>
+        <input className="border p-2 mb-2 w-full rounded" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
+        <input className="border p-2 mb-2 w-full rounded" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+        <input type="password" className="border p-2 mb-2 w-full rounded" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+        <button className="bg-green-500 text-white p-2 w-full rounded mt-2">Register</button>
+      </form>
     </div>
   );
 };
 
-export default Register;   // ← THIS LINE WAS MISSING OR REMOVED
+export default Register;
