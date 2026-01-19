@@ -1,91 +1,92 @@
-from config import db
-from sqlalchemy.orm import validates
-from datetime import date
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import CheckConstraint
+
+# Initialize SQLAlchemy
+db = SQLAlchemy()
+
+# USER MODEL
 
 
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False, unique=True)
-    email = db.Column(db.String, nullable=False, unique=True)
+    username = db.Column(db.String(50), nullable=False, unique=True)
+    email = db.Column(db.String(120), nullable=False, unique=True)
 
+    # Relationships
     events = db.relationship(
-        'Event', back_populates='user', cascade='all, delete')
+        "Event",
+        backref="creator",
+        cascade="all, delete-orphan"
+    )
     feedback = db.relationship(
-        'Feedback', back_populates='user', cascade='all, delete')
+        "Feedback",
+        backref="author",
+        cascade="all, delete-orphan"
+    )
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email
+            "id": self.id,
+            "username": self.username,
+            "email": self.email
         }
+
+
+# EVENT MODEL
 
 
 class Event(db.Model):
-    __tablename__ = 'events'
+    __tablename__ = "events"
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String, nullable=False)
-    description = db.Column(db.String)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500))
     date = db.Column(db.Date, nullable=False)
-    location = db.Column(db.String, nullable=False)
+    location = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-
-    user = db.relationship('User', back_populates='events')
+    # Relationship
     feedback = db.relationship(
-        'Feedback', back_populates='event', cascade='all, delete')
-
-    @validates('title', 'location')
-    def validate_strings(self, key, value):
-        if not value or len(value) < 3:
-            raise ValueError(f'{key} must be at least 3 characters')
-        return value
-
-    @validates('date')
-    def validate_date(self, key, value):
-        if not isinstance(value, date):
-            raise ValueError('Invalid date')
-        return value
+        "Feedback",
+        backref="event",
+        cascade="all, delete-orphan"
+    )
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'title': self.title,
-            'description': self.description,
-            'date': self.date.isoformat(),
-            'location': self.location,
-            'user_id': self.user_id
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "date": str(self.date),
+            "location": self.location,
+            "user_id": self.user_id
         }
 
 
+# FEEDBACK MODEL
+
+
 class Feedback(db.Model):
-    __tablename__ = 'feedback'
+    __tablename__ = "feedback"
+    __table_args__ = (
+        CheckConstraint('rating >= 1 AND rating <= 5',
+                        name='check_rating_range'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer, nullable=False)
-    comment = db.Column(db.String, nullable=False)
-
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    comment = db.Column(db.String(300))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey(
-        'events.id'), nullable=False)
-
-    user = db.relationship('User', back_populates='feedback')
-    event = db.relationship('Event', back_populates='feedback')
-
-    @validates('rating')
-    def validate_rating(self, key, value):
-        if not isinstance(value, int) or not (1 <= value <= 5):
-            raise ValueError('Rating must be between 1 and 5')
-        return value
+        "events.id"), nullable=False)
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'rating': self.rating,
-            'comment': self.comment,
-            'user_id': self.user_id,
-            'event_id': self.event_id
+            "id": self.id,
+            "rating": self.rating,
+            "comment": self.comment,
+            "user_id": self.user_id,
+            "event_id": self.event_id
         }
