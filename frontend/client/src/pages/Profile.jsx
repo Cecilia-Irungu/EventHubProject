@@ -1,24 +1,27 @@
-import React from 'react';
+import { useEffect, useState } from "react";
+import API from "../api/api";
+import { useSelector } from "react-redux";
 
 const Profile = () => {
+  const token = useSelector(state => state.auth.token);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const res = await API.get("/users/me");
+      setUser(res.data);
+    };
+    fetchProfile();
+  }, [token]);
+
+  if (!user) return <p>Loading...</p>;
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6 flex justify-center">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4">My Profile</h1>
-        <div className="flex flex-col gap-3">
-          <div>
-            <label className="block text-gray-700">Username</label>
-            <input type="text" value="JohnDoe" className="w-full p-2 border rounded" readOnly />
-          </div>
-          <div>
-            <label className="block text-gray-700">Email</label>
-            <input type="email" value="johndoe@example.com" className="w-full p-2 border rounded" readOnly />
-          </div>
-          <button className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition mt-4">
-            Edit Profile
-          </button>
-        </div>
-      </div>
+    <div className="p-8 max-w-md mx-auto bg-white shadow-md rounded">
+      <h1 className="text-3xl font-bold mb-4">Profile</h1>
+      <p><strong>Username:</strong> {user.username}</p>
+      <p><strong>Email:</strong> {user.email}</p>
+      <p><strong>Created At:</strong> {new Date(user.created_at).toLocaleString()}</p>
     </div>
   );
 };
