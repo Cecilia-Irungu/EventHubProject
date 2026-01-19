@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from .database import Base
 from datetime import datetime
 
+# Many-to-Many: Event ↔ Tag
 event_tags = Table(
     'event_tags',
     Base.metadata,
@@ -15,24 +16,24 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
+    email = Column(String, unique=True)
     password_hash = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
-    events = relationship('Event', back_populates='creator')
-    feedbacks = relationship('Feedback', back_populates='user')
+    events = relationship("Event", back_populates="creator")
+    feedbacks = relationship("Feedback", back_populates="user")
 
 
 class Event(Base):
     __tablename__ = 'events'
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
+    title = Column(String)
     description = Column(Text)
     date = Column(DateTime)
     location = Column(String)
     created_by = Column(Integer, ForeignKey('users.id'))
-    creator = relationship('User', back_populates='events')
-    feedbacks = relationship('Feedback', back_populates='event')
-    tags = relationship('Tag', secondary=event_tags, back_populates='events')
+    creator = relationship("User", back_populates="events")
+    feedbacks = relationship("Feedback", back_populates="event")
+    tags = relationship("Tag", secondary=event_tags, back_populates="events")
 
 
 class Feedback(Base):
@@ -42,12 +43,12 @@ class Feedback(Base):
     rating = Column(Integer)
     event_id = Column(Integer, ForeignKey('events.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
-    event = relationship('Event', back_populates='feedbacks')
-    user = relationship('User', back_populates='feedbacks')
+    event = relationship("Event", back_populates="feedbacks")
+    user = relationship("User", back_populates="feedbacks")
 
 
 class Tag(Base):
     __tablename__ = 'tags'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
-    events = relationship('Event', secondary=event_tags, back_populates='tags')
+    events = relationship("Event", secondary=event_tags, back_populates="tags")
