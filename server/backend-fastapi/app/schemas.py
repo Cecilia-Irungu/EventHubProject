@@ -1,61 +1,59 @@
 from pydantic import BaseModel, EmailStr
+from typing import List, Optional
 from datetime import datetime
-from typing import Optional
+
+
+class TagBase(BaseModel):
+    name: str
+
+
+class Tag(TagBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
 
 class UserBase(BaseModel):
+    username: str
     email: EmailStr
-    full_name: str
+
 
 class UserCreate(UserBase):
     password: str
 
-class UserOut(UserBase):
+
+class User(UserBase):
     id: int
     created_at: datetime
-    is_active: bool
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    user_id: Optional[int] = None
 
 class EventBase(BaseModel):
     title: str
     description: str
     date: datetime
     location: str
-    price: float = 0.0
-    capacity: int = 100
-    image_url: Optional[str] = None
 
-class EventCreate(EventBase):
-    pass
 
-class EventOut(EventBase):
+class Event(EventBase):
     id: int
-    host_id: int
-    created_at: datetime
+    tags: List[Tag] = []
 
     class Config:
-        from_attributes = True
-class BookingBase(BaseModel):
-    ticket_type: str
-    price_paid: float
+        orm_mode = True
 
-class BookingCreate(BookingBase):
-    event_id: int
 
-class BookingOut(BookingBase):
+class FeedbackBase(BaseModel):
+    content: str
+    rating: int
+
+
+class Feedback(FeedbackBase):
     id: int
-    user_id: int
-    event_id: int
-    status: str
-    created_at: datetime
+    user: User
 
     class Config:
-        from_attributes = True
+        orm_mode = True
